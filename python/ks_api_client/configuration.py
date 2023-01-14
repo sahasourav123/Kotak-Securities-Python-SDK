@@ -22,6 +22,7 @@ JSON_SCHEMA_VALIDATION_KEYWORDS = {
     'minLength', 'pattern', 'maxItems', 'minItems'
 }
 
+
 class Configuration(object):
     """
     :param host: Base url
@@ -80,8 +81,8 @@ class Configuration(object):
                  disabled_client_side_validations="",
                  server_index=None, server_variables=None,
                  server_operation_index=None, server_operation_variables=None,
-                 userid = None, access_token = None, consumer_key = None, consumer_secret = None, ip = None, app_id = "",
-                 proxy_url = None, proxy_user = None, proxy_pass = None
+                 userid=None, access_token=None, consumer_key=None, consumer_secret=None, ip=None, app_id="",
+                 proxy_url=None, proxy_user=None, proxy_pass=None, session_token=None
                  ):
         """Constructor
         """
@@ -200,6 +201,8 @@ class Configuration(object):
         self.proxy_user = proxy_user
 
         self.proxy_pass = proxy_pass
+
+        self.session_token = session_token
 
         self.cacert_file = None
 
@@ -392,12 +395,12 @@ class Configuration(object):
 
         :return: The report for debugging.
         """
-        return "Python SDK Debug Report:\n"\
-               "OS: {env}\n"\
-               "Python Version: {pyversion}\n"\
-               "Version of the API: 1.0\n"\
-               "SDK Package Version: 1.0.0".\
-               format(env=sys.platform, pyversion=sys.version)
+        return "Python SDK Debug Report:\n" \
+               "OS: {env}\n" \
+               "Python Version: {pyversion}\n" \
+               "Version of the API: 1.0\n" \
+               "SDK Package Version: 1.0.0". \
+            format(env=sys.platform, pyversion=sys.version)
 
     def get_host_settings(self):
         """Gets an array of host settings
@@ -460,7 +463,7 @@ class Configuration(object):
         """Fix base path."""
         self._base_path = value
         self.server_index = None
-    
+
     # Get from environment
     def gfe(self, key, default=None):
         """
@@ -473,7 +476,7 @@ class Configuration(object):
             except KeyError:
                 pass
         return os.environ.get(key, default)
-    
+
     def set_configuration_from_settings(self):
         settings_file = self.gfe('settings_file')
         if settings_file:
@@ -539,9 +542,9 @@ class Configuration(object):
         self.verify_ssl = True
 
     def validate_configuration(self):
-        if not self.access_token:
-            raise ApiValueError("Please provide the access_token paramater while creating KSTradeApi object, or supply in settings file. Without access_token the API cannot be accessed.")
+        if not (self.session_token or self.access_token):
+            raise ApiValueError("Without ANY OF session_token OR access_token the API cannot be accessed.")
         if not self.userid:
-            raise ApiValueError("Please provide the userid paramater while creating KSTradeApi object, or supply in settings file. Without userid the API cannot be accessed.")
+            raise ApiValueError("Without userid the API cannot be accessed.")
         if not self.consumer_key:
-            raise ApiValueError("Please provide the consumer_key paramater while creating KSTradeApi object, or supply in settings file. Without consumer_key the API cannot be accessed.")
+            raise ApiValueError("Without consumer_key the API cannot be accessed.")
