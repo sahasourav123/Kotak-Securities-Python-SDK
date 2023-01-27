@@ -412,9 +412,9 @@ class KSTradeApi():
                                  headers={'Authorization': 'Bearer ' + jsonResponse['result']['token']},
                                  transports=["websocket"], socketio_path=socketio_path)
             else:
-                print('Token not found')
+                raise ConnectionError(str(jsonResponse))
         except Exception as err:
-            print(f'Other error occurred: {err}')
+            raise Exception(f'(Kotak) Broker side exception: {err}')
 
     def unsubscribe(self):
         if 'sio' not in self.__dict__:
