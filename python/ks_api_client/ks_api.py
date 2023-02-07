@@ -15,7 +15,7 @@ from ks_api_client.models import NewMTFOrder, NewNormalOrder, NewOrder, \
 from ks_api_client.settings import broadcast_host
 
 
-class KSTradeApi():
+class KSTradeApi:
     def __init__(self, access_token=None, userid=None, consumer_key=None, ip=None, app_id="", host=None,
                  proxy_url=None, proxy_user=None, proxy_pass=None, consumer_secret=None, session_token=None):
         error = None
@@ -355,7 +355,7 @@ class KSTradeApi():
 
     def subscribe(self, input_tokens, callback, broadcast_host=broadcast_host, **kwargs):
         try:
-            if self.consumer_secret == None or not self.consumer_secret:
+            if self.consumer_secret is None or not self.consumer_secret:
                 raise ApiValueError("Please provide the consumer_secret paramater while creating KSTradeApi object or supply in settings file.")
             proxy = ""
             auth_token = self.consumer_key + ":" + self.consumer_secret
@@ -368,21 +368,22 @@ class KSTradeApi():
                 else:
                     scheme += parsed.scheme + "://"
                 if self._proxy_pass and self._proxy_user:
-                    proxy += scheme + ":".join((self._proxy_user, self._proxy_pass)) + \
-                             "@" + parsed.hostname
+                    proxy += scheme + ":".join((self._proxy_user, self._proxy_pass)) + "@" + parsed.hostname
                     if parsed.port:
                         proxy += ":" + str(parsed.port)
                     session.proxies.update({'http': proxy, 'https': proxy})
                     session.verify = 's' in scheme
+
             # Generating base64 encoding of consumer credentials
             AUTH_BASE64 = base64.b64encode(auth_token.encode("UTF-8"))
             PAYLOAD = {"authentication": AUTH_BASE64.decode("UTF-8")}
             # Getting access token
-            response = session.post(urllib.parse.urljoin(broadcast_host, "feed/auth/token"),
-                                    data=PAYLOAD)
+            response = session.post('https://wstreamer.kotaksecurities.com/feed/auth/token', data=PAYLOAD)
             jsonResponse = response.json()
+            # sample response >> {'status': 'success', 'result': {'token': 'xxxx.xxxx.xxxx_xxxx-xxxx', 'expiry': 1440}}
+
             # Check if we got access token
-            if 'result' in jsonResponse and 'token' in jsonResponse['result'] and jsonResponse['result']['token']:
+            if jsonResponse['status'] == 'success':
                 parsed_broadcast_host = urllib.parse.urlparse(broadcast_host)
                 socketio_path = parsed_broadcast_host.path
                 engineio_logger_bool = kwargs.get("engineio_logger", True)
@@ -415,24 +416,22 @@ class KSTradeApi():
                 raise ConnectionError(str(jsonResponse))
         except Exception as err:
             raise Exception(f'(Kotak) Broker side exception: {err}')
-
     def unsubscribe(self):
         if 'sio' not in self.__dict__:
             raise ApiValueError("Please subscribe first")
         self.sio.disconnect()
 
     def token(self, grant_type, username, password, refresh_token):
-        if self.consumer_secret == None:
+        if self.consumer_secret is None:
             raise ApiValueError("Please pass the consumer secret while creating client")
         auth_token = self.consumer_key + ":" + self.consumer_secret
         AUTH_BASE64 = base64.b64encode(auth_token.encode("UTF-8"))
         authorization = AUTH_BASE64.decode("UTF-8")
-        token = ks_api_client.TokenApi(self.api_client).token_post(authorization=authorization, grant_type=grant_type, username=username, \
-                                                                   password=password, refresh_token=refresh_token)
+        token = ks_api_client.TokenApi(self.api_client).token_post(authorization=authorization, grant_type=grant_type, username=username, password=password, refresh_token=refresh_token)
         return token
 
     def revoke(self, token, token_type_hint):
-        if self.consumer_secret == None:
+        if self.consumer_secret is None:
             raise ApiValueError("Please pass the consumer secret while creating client")
         auth_token = self.consumer_key + ":" + self.consumer_secret
         AUTH_BASE64 = base64.b64encode(auth_token.encode("UTF-8"))
