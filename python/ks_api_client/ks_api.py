@@ -131,8 +131,8 @@ class KSTradeApi:
     # -------------------------------------------------------------------------------
     # Common methods for placing order
 
-    def place_order(self, order_type, instrument_token, transaction_type, \
-                    quantity, price, disclosed_quantity=0, trigger_price=0, tag="string", \
+    def place_order(self, order_type, instrument_token, transaction_type,
+                    quantity, price, disclosed_quantity=0, trigger_price=0, tag="string",
                     validity="GFD", variety="REGULAR", product=None, smart_order_routing=None):
         """
         Method executes placing_orders according to it's order type.
