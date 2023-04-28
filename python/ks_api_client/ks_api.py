@@ -14,10 +14,12 @@ from ks_api_client.models import NewMTFOrder, NewNormalOrder, NewOrder, \
     UserCredentials, UserDetails, NewMISOrder, InlineObject
 from ks_api_client.settings import broadcast_host
 
+import logging
 
 class KSTradeApi:
     def __init__(self, access_token=None, userid=None, consumer_key=None, ip=None, app_id="", host=None,
                  proxy_url=None, proxy_user=None, proxy_pass=None, consumer_secret=None, session_token=None):
+        self.logger = logging.getLogger('ksapi')
         error = None
         session_init = None
         if host:
@@ -398,11 +400,11 @@ class KSTradeApi:
 
                 @self.sio.event
                 def connect_error(data):
-                    print("Connection failed")
+                    self.logger.error("Connection failed")
 
                 @self.sio.event
                 def disconnect():
-                    print('Connection closed')
+                    self.logger.warning('Connection closed')
 
                 @self.sio.on('getdata')
                 def on_getdata(data, callback=callback):
@@ -412,10 +414,17 @@ class KSTradeApi:
                 self.sio.connect(broadcast_host,
                                  headers={'Authorization': 'Bearer ' + jsonResponse['result']['token']},
                                  transports=["websocket"], socketio_path=socketio_path)
+
+                self.logger.info('Connected successfully to Kotak Securities Websocket')
+
             else:
-                raise ConnectionError(str(jsonResponse))
+                raise ConnectionError("[Kotak Securities] Authentication Error")
+
         except Exception as err:
-            raise Exception(f'(Kotak) Broker side exception: {err}')
+            msg = f"[Kotak Securities] Received {type(err).__name__} >> {err.args[0]}"
+            self.logger.exception(msg)
+            raise err
+
     def unsubscribe(self):
         if 'sio' not in self.__dict__:
             raise ApiValueError("Please subscribe first")
