@@ -298,19 +298,22 @@ class KSTradeApi:
 
     # -----------------------Get Order Id-------------
     def get_order_id(self, order_res):
-        if (order_res.get("Success")):
+        if order_res.get("Success"):
             order = order_res.get("Success")
-        elif (order_res.get("success")):
+        elif order_res.get("success"):
             order = order_res.get("success")
-        if (order.get("NSE") and order.get("BSE")):
-            if (order.get("NSE").get("orderId")):
+
+        if order.get("NSE") and order.get("BSE"):
+
+            if order.get("NSE").get("orderId"):
                 order = order.get("NSE")
-            elif (order.get("BSE").get("orderId")):
+            elif order.get("BSE").get("orderId"):
                 order = order.get("BSE")
+
         else:
-            if (order.get("NSE")):
+            if order.get("NSE"):
                 order = order.get("NSE")
-            elif (order.get("BSE")):
+            elif order.get("BSE"):
                 order = order.get("BSE")
         return str(order['orderId'])
 
@@ -318,17 +321,17 @@ class KSTradeApi:
     def history(self, resource, json_input):
         if not 'session_token' in self.__dict__:
             raise ApiValueError("Please invoke 'session_2fa' function first")
-        if (resource == 'historicalprices'):
-            if (json_input.keys() != {"exchange": "", "cocode": "", "fromdate": "", "todate": ""}.keys()):
+        if resource == 'historicalprices':
+            if json_input.keys() != {"exchange": "", "cocode": "", "fromdate": "", "todate": ""}.keys():
                 raise ApiValueError("exchange,cocode,fromdate,todate fields are required.")
-        elif (resource == 'historicalprices-unadjusted'):
-            if (json_input.keys() != {"exchange": "", "co_code": "", "date": ""}.keys()):
+        elif resource == 'historicalprices-unadjusted':
+            if json_input.keys() != {"exchange": "", "co_code": "", "date": ""}.keys():
                 raise ApiValueError("exchange,co_code,date fields are required.")
-        elif (resource == 'NSEFNO_HistoricalContinuousChart'):
-            if (json_input.keys() != {"symbol": "", "expiry type": ""}.keys()):
+        elif resource == 'NSEFNO_HistoricalContinuousChart':
+            if json_input.keys() != {"symbol": "", "expiry type": ""}.keys():
                 raise ApiValueError("symbol,expiry type fields are required.")
-        elif (resource == 'LiveorEODHistorical'):
-            if (json_input.keys() != {"exchange": "", "co_code": "", "period": "", "cnt": ""}.keys()):
+        elif resource == 'LiveorEODHistorical':
+            if json_input.keys() != {"exchange": "", "co_code": "", "period": "", "cnt": ""}.keys():
                 raise ApiValueError("exchange,co_code,period,cnt fields are required.")
         encoded_json = base64.urlsafe_b64encode(json.dumps(json_input).encode()).decode()
         data = ks_api_client.HistoricalApi(self.api_client).get_resource(resource, encoded_json)
@@ -388,8 +391,8 @@ class KSTradeApi:
             if jsonResponse['status'] == 'success':
                 parsed_broadcast_host = urllib.parse.urlparse(broadcast_host)
                 socketio_path = parsed_broadcast_host.path
-                engineio_logger_bool = kwargs.get("engineio_logger", True)
-                logger_bool = kwargs.get("logger", True)
+                engineio_logger_bool = kwargs.get("engineio_logger", False)
+                logger_bool = kwargs.get("logger", False)
                 self.sio = socketio.Client(
                     reconnection=True, request_timeout=20, reconnection_attempts=5, engineio_logger=engineio_logger_bool,
                     logger=logger_bool, http_session=session, ssl_verify=session.verify)
