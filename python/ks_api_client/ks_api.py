@@ -407,7 +407,8 @@ class KSTradeApi:
 
                 @self.sio.event
                 def disconnect():
-                    self.logger.warning('Connection closed')
+                    # self.logger.warning('Connection closed')
+                    pass
 
                 @self.sio.on('getdata')
                 def on_getdata(data, callback=callback):

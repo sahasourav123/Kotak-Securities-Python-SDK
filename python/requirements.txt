@@ -1,8 +1,8 @@
 certifi==2023.7.22
 six==1.16.0
 python_dateutil== 2.8.2
-setuptools==68.2.1
-urllib3==2.0.4
+setuptools==68.2.2
+urllib3==2.0.6
 python-socketio[client]==5.9.0
 requests==2.31.0
 python-dotenv==1.0.0
